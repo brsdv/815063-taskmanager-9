@@ -1,6 +1,7 @@
 'use strict';
 
 (function () {
+  const CARD_COUNT = 3;
   const main = document.querySelector(`main`);
   const mainControl = main.querySelector(`.main__control`);
 
@@ -446,8 +447,6 @@
   </form>
   </article>`;
 
-  const getMarkupLoadmore = () => `<button class="load-more" type="button">load more</button>`;
-
   const getMarkupBoard = () => `<section class="board container">
   <div class="board__filter-list">
     <a href="#" class="board__filter">SORT BY DEFAULT</a>
@@ -457,13 +456,12 @@
 
   <div class="board__tasks">
     ${getMarkupEditCard()}
-    ${getMarkupCard()}
-    ${getMarkupCard()}
-    ${getMarkupCard()}
   </div>
   ${getMarkupLoadmore()}
   </section>
   `;
+
+  const getMarkupLoadmore = () => `<button class="load-more" type="button">load more</button>`;
 
   const renderComponent = (container, markup) => container.insertAdjacentHTML(`beforeend`, markup);
 
@@ -471,4 +469,8 @@
   renderComponent(main, getMarkupSearch());
   renderComponent(main, getMarkupFilter());
   renderComponent(main, getMarkupBoard());
+
+  for (let i = 0; i < CARD_COUNT; i++) {
+    renderComponent(main.querySelector(`.board__tasks`), getMarkupCard());
+  }
 })();
