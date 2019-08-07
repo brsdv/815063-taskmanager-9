@@ -1,8 +1,8 @@
 'use strict';
 
 (function () {
-  const main = document.querySelector('main');
-  const mainControl = main.querySelector('.main__control');
+  const main = document.querySelector(`main`);
+  const mainControl = main.querySelector(`.main__control`);
 
   const getMarkupMenu = () => `<section class="control__btn-wrap">
   <input
@@ -465,7 +465,7 @@
   </section>
   `;
 
-  const renderComponent = (container, markup) => container.insertAdjacentHTML('beforeend', markup);
+  const renderComponent = (container, markup) => container.insertAdjacentHTML(`beforeend`, markup);
 
   renderComponent(mainControl, getMarkupMenu());
   renderComponent(main, getMarkupSearch());
