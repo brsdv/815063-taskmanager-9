@@ -1,4 +1,4 @@
-# Личный проект «Менеджер задач» [![Build status][travis-image]][travis-url]
+# Учебный проект «Менеджер задач» [![Build status][travis-image]][travis-url]
 
 * Студент: [Борис Давыденко](https://up.htmlacademy.ru/ecmascript/9/user/815063).
 * Наставник: [Александр Быков](https://htmlacademy.ru/profile/id7107).
