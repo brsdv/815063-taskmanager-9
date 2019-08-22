@@ -8,7 +8,7 @@ import {getMarkupEditCard} from './components/card-edit.js';
 import {getMarkupLoadmore} from './components/load-more.js';
 import {totalCards, filters} from './data.js';
 
-const CARD_COUNT = 7;
+const CARD_COUNT = 8;
 
 const renderComponent = (container, markup, place = `beforeend`) => container.insertAdjacentHTML(place, markup);
 
@@ -26,9 +26,24 @@ const boardElement = mainElement.querySelector(`.board__tasks`);
 renderComponent(taskListElement, getMarkupSorting(), `afterbegin`);
 renderComponent(boardElement, getMarkupEditCard(totalCards[0]));
 
-for (let i = 1; i <= CARD_COUNT; i++) {
-  renderComponent(boardElement, getMarkupCard(totalCards[i]));
-}
+const createElement = (template) => {
+  const newElement = document.createElement(`div`);
+  newElement.innerHTML = template;
+  return newElement.firstChild;
+};
+
+const getFragment = (cards, startCount, endCount) => {
+  const fragment = document.createDocumentFragment();
+
+  for (let i = startCount; i < endCount; i++) {
+    const markupElement = createElement(getMarkupCard(cards[i]));
+    fragment.appendChild(markupElement);
+  }
+
+  return fragment;
+};
+
+boardElement.appendChild(getFragment(totalCards, 1, CARD_COUNT));
 
 renderComponent(taskListElement, getMarkupLoadmore());
 
@@ -39,9 +54,7 @@ const loadMoreHandler = () => {
   const cardsElementCount = boardElement.querySelectorAll(`.card`).length;
 
   if (totalCardsCount > cardsElementCount) {
-    for (let i = cardsElementCount; i < totalCardsCount; i++) {
-      renderComponent(boardElement, getMarkupCard(totalCards[i]));
-    }
+    boardElement.appendChild(getFragment(totalCards, cardsElementCount, totalCardsCount));
   } else {
     loadMoreElement.remove();
   }
