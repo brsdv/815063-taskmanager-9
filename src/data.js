@@ -11,7 +11,7 @@ const getRandomTags = () => {
 
   // Тассование массива Фишера Йетса
   const shuffle = function (array) {
-    let cloneArray = Array.from(array).slice();
+    const cloneArray = [...array];
     let j;
     let temp;
 

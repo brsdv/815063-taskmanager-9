@@ -1,5 +1,15 @@
-export const getMarkupSorting = () => `<div class="board__filter-list">
-  <a href="#" class="board__filter">SORT BY DEFAULT</a>
-  <a href="#" class="board__filter">SORT BY DATE up</a>
-  <a href="#" class="board__filter">SORT BY DATE down</a>
-  </div>`;
+import {createElement} from "../util.js";
+
+export class Sorting {
+  getTemplate() {
+    return `<div class="board__filter-list">
+    <a href="#" class="board__filter">SORT BY DEFAULT</a>
+    <a href="#" class="board__filter">SORT BY DATE up</a>
+    <a href="#" class="board__filter">SORT BY DATE down</a>
+    </div>`.trim();
+  }
+
+  getElement() {
+    return createElement(this.getTemplate());
+  }
+}
