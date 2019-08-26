@@ -5,11 +5,7 @@ const Position = {
   BEFOREEND: `beforeend`
 };
 
-export const isEscButton = (evt, action) => {
-  if (evt.keyCode === ESC_KEYDOWN) {
-    action();
-  }
-};
+export const isEscButton = (evt) => evt.keyCode === ESC_KEYDOWN;
 
 export const createElement = (template) => {
   const newElement = document.createElement(`div`);

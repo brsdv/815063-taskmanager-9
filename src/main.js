@@ -37,10 +37,10 @@ const renderCard = (element) => {
   const cardEditElement = cardEdit.getElement();
 
   const escKeyDownHandler = (evt) => {
-    isEscButton(evt, () => {
+    if (isEscButton(evt)) {
       boardElement.replaceChild(cardElement, cardEditElement);
       document.removeEventListener(`keydown`, escKeyDownHandler);
-    });
+    }
   };
 
   cardElement.querySelector(`.card__btn--edit`).addEventListener(`click`, () => {
