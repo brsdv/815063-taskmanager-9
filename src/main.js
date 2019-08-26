@@ -7,7 +7,7 @@ import {Card} from './components/card.js';
 import {CardEdit} from './components/card-edit.js';
 import {LoadMore} from './components/load-more.js';
 import {totalCards, filters} from './data.js';
-import {renderElement, removeNode, keyEvent} from "./util.js";
+import {renderElement, removeNode, isEscButton} from "./util.js";
 
 const CARD_COUNT = 8;
 
@@ -37,7 +37,7 @@ const renderCard = (element) => {
   const cardEditElement = cardEdit.getElement();
 
   const escKeyDownHandler = (evt) => {
-    keyEvent(evt, () => {
+    isEscButton(evt, () => {
       boardElement.replaceChild(cardElement, cardEditElement);
       document.removeEventListener(`keydown`, escKeyDownHandler);
     });
