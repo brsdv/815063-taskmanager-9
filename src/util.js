@@ -33,5 +33,3 @@ export const remove = (element) => {
     element.remove();
   }
 };
-
-export const isEsc = (evt) => evt.keyCode === ESC_KEYDOWN;
