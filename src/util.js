@@ -1,11 +1,11 @@
+const ESC_KEYDOWN = 27;
+
 const Position = {
   AFTERBEGIN: `afterbegin`,
   BEFOREEND: `beforeend`
 };
 
 export const isEscButton = (evt, action) => {
-  const ESC_KEYDOWN = 27;
-
   if (evt.keyCode === ESC_KEYDOWN) {
     action();
   }
