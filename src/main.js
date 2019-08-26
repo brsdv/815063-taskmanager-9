@@ -7,10 +7,9 @@ import {Card} from './components/card.js';
 import {CardEdit} from './components/card-edit.js';
 import {LoadMore} from './components/load-more.js';
 import {totalCards, filters} from './data.js';
-import {renderElement} from "./util.js";
+import {renderElement, keyEvent} from "./util.js";
 
 const CARD_COUNT = 8;
-const ESC_KEYDOWN = 27;
 
 const mainElement = document.querySelector(`main`);
 const mainControlElement = mainElement.querySelector(`.main__control`);
@@ -38,10 +37,10 @@ const renderCard = (element) => {
   const cardEditElement = cardEdit.getElement();
 
   const escKeyDownHandler = (evt) => {
-    if (evt.keyCode === ESC_KEYDOWN) {
+    keyEvent(evt, () => {
       boardElement.replaceChild(cardElement, cardEditElement);
       document.removeEventListener(`keydown`, escKeyDownHandler);
-    }
+    });
   };
 
   cardElement.querySelector(`.card__btn--edit`).addEventListener(`click`, () => {
