@@ -28,7 +28,7 @@ export const renderElement = (container, markup, place = Position.BEFOREEND) => 
   }
 };
 
-export const remove = (element) => {
+export const removeNode = (element) => {
   if (element) {
     element.remove();
   }

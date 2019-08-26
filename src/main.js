@@ -7,7 +7,7 @@ import {Card} from './components/card.js';
 import {CardEdit} from './components/card-edit.js';
 import {LoadMore} from './components/load-more.js';
 import {totalCards, filters} from './data.js';
-import {renderElement, keyEvent} from "./util.js";
+import {renderElement, removeNode, keyEvent} from "./util.js";
 
 const CARD_COUNT = 8;
 
@@ -73,7 +73,8 @@ const loadMoreHandler = () => {
       renderCard(totalCards[i]);
     }
   } else {
-    loadMoreElement.remove();
+    removeNode(loadMoreElement);
+    new LoadMore().removeElement();
   }
 };
 
