@@ -54,7 +54,7 @@ const getCardData = () => ({
     `pink`
   ][Math.floor(Math.random() * 5)],
   isFavorite: Math.random() >= 0.5,
-  isArchive: Math.random() >= 0.5
+  isArchive: Math.random() >= 0.5,
 });
 
 // Множество с названиями фильтров
@@ -74,7 +74,7 @@ const filterCount = (title, cards) => {
 
   switch (title) {
     case `All`:
-      total = cards;
+      total = cards.filter((element) => !element.isArchive);
       break;
     case `Overdue`:
       total = cards.filter((element) => element.dueDate < Date.now());

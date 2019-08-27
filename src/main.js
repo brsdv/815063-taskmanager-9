@@ -6,6 +6,7 @@ import {Sorting} from './components/sorting.js';
 import {Card} from './components/card.js';
 import {CardEdit} from './components/card-edit.js';
 import {LoadMore} from './components/load-more.js';
+import {NotTasks} from './components/no-tasks.js';
 import {totalCards, filters} from './data.js';
 import {renderElement, removeNode, isEscButton} from "./util.js";
 
@@ -53,6 +54,14 @@ const renderCard = (element) => {
     document.removeEventListener(`keydown`, escKeyDownHandler);
   });
 
+  cardEditElement.querySelector(`textarea`).addEventListener(`focus`, () => {
+    document.removeEventListener(`keydown`, escKeyDownHandler);
+  });
+
+  cardEditElement.querySelector(`textarea`).addEventListener(`blur`, () => {
+    document.addEventListener(`keydown`, escKeyDownHandler);
+  });
+
   renderElement(boardElement, cardElement);
 };
 
@@ -64,18 +73,30 @@ renderMarkup(new LoadMore(), taskListElement);
 
 const loadMoreElement = mainElement.querySelector(`.load-more`);
 
+const removeLoadMore = (obj) => {
+  removeNode(loadMoreElement);
+  obj.removeElement();
+};
+
 const loadMoreHandler = () => {
   const totalCardsCount = totalCards.length;
-  const cardsElementCount = boardElement.querySelectorAll(`.card`).length;
+  const currentCardsCount = boardElement.querySelectorAll(`.card`).length;
 
-  if (totalCardsCount > cardsElementCount) {
-    for (let i = cardsElementCount; i < totalCardsCount; i++) {
+  if (totalCardsCount > currentCardsCount) {
+    for (let i = currentCardsCount; i < totalCardsCount; i++) {
       renderCard(totalCards[i]);
     }
   } else {
-    removeNode(loadMoreElement);
-    new LoadMore().removeElement();
+    removeLoadMore(new LoadMore());
   }
 };
 
 loadMoreElement.addEventListener(`click`, loadMoreHandler);
+
+const filterAll = filters.filter((element) => element.title === `All`).map((element) => element.count).join(``);
+
+if (!parseInt(filterAll, 10)) {
+  removeNode(taskListElement);
+  removeLoadMore(new LoadMore());
+  renderMarkup(new NotTasks(), mainElement);
+}
