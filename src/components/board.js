@@ -1,14 +1,8 @@
-import {createElement} from "../util.js";
+import {AbstractComponent} from "./abstract-component.js";
 
-export class Board {
+export class Board extends AbstractComponent {
   getTemplate() {
     return `<section class="board container">
-    <div class="board__tasks">
-    </div>
     </section>`.trim();
-  }
-
-  getElement() {
-    return createElement(this.getTemplate());
   }
 }

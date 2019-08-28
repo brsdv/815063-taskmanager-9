@@ -1,7 +1,8 @@
-import {createElement} from "../util.js";
+import {AbstractComponent} from "./abstract-component";
 
-export class Filter {
+export class Filter extends AbstractComponent {
   constructor(filters) {
+    super();
     this._filters = filters;
   }
 
@@ -19,9 +20,5 @@ export class Filter {
       >${title} <span class="filter__${title.toLowerCase()}-count">${count}</span></label
     >`).join(``)}
     </section>`.trim();
-  }
-
-  getElement() {
-    return createElement(this.getTemplate());
   }
 }

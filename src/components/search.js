@@ -1,6 +1,6 @@
-import {createElement} from "../util.js";
+import {AbstractComponent} from "./abstract-component";
 
-export class Search {
+export class Search extends AbstractComponent {
   getTemplate() {
     return `<section class="main__search search container">
     <input
@@ -11,9 +11,5 @@ export class Search {
     />
     <label class="visually-hidden" for="search__input">Search</label>
     </section>`.trim();
-  }
-
-  getElement() {
-    return createElement(this.getTemplate());
   }
 }

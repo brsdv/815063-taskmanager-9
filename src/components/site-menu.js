@@ -1,6 +1,6 @@
-import {createElement} from "../util.js";
+import {AbstractComponent} from "./abstract-component.js";
 
-export class Menu {
+export class Menu extends AbstractComponent {
   getTemplate() {
     return `<section class="control__btn-wrap">
     <input
@@ -30,9 +30,5 @@ export class Menu {
       >STATISTICS</label
     >
     </section>`.trim();
-  }
-
-  getElement() {
-    return createElement(this.getTemplate());
   }
 }
