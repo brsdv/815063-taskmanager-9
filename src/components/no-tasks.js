@@ -1,6 +1,6 @@
-import {createElement} from "../util.js";
+import {AbstractComponent} from "./abstract-component";
 
-export class NotTasks {
+export class NotTasks extends AbstractComponent {
   getTemplate() {
     return `<section class="board container">
         <p class="board__no-tasks">
@@ -8,9 +8,5 @@ export class NotTasks {
         «add new task» button.
         </p>
     </section>`.trim();
-  }
-
-  getElement() {
-    return createElement(this.getTemplate());
   }
 }
