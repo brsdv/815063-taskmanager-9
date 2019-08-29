@@ -1,7 +1,7 @@
 import {createElement} from "../util.js";
 
 export class AbstractComponent {
-  constracor() {
+  constructor() {
     if (new.target === AbstractComponent) {
       throw new Error(`Can't instantiate AbstractComponent, only concrete one.`);
     }
