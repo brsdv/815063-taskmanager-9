@@ -79,6 +79,12 @@ export class BoardController {
     renderElement(this._cardList.getElement(), cardElement);
   }
 
+  _renderCards(elements) {
+    for (let i = 0; i < CARD_COUNT; i++) {
+      this._renderCard(elements[i]);
+    }
+  }
+
   _loadMoreClickHandler() {
     const totalCardsCount = this._cards.length;
     const currentCardsCount = this._cardList.getElement().querySelectorAll(`.card`).length;
@@ -104,21 +110,15 @@ export class BoardController {
 
     switch (evt.target.dataset.sortType) {
       case `default`:
-        for (let i = 0; i < CARD_COUNT; i++) {
-          this._renderCard(this._cards[i]);
-        }
+        this._renderCards(this._cards);
         break;
       case `date-up`:
         const sortedUpCards = this._cards.slice().sort((a, b) => a.dueDate - b.dueDate);
-        for (let i = 0; i < CARD_COUNT; i++) {
-          this._renderCard(sortedUpCards[i]);
-        }
+        this._renderCards(sortedUpCards);
         break;
       case `date-down`:
         const sortedDownCards = this._cards.slice().sort((a, b) => b.dueDate - a.dueDate);
-        for (let i = 0; i < CARD_COUNT; i++) {
-          this._renderCard(sortedDownCards[i]);
-        }
+        this._renderCards(sortedDownCards);
         break;
     }
   }
