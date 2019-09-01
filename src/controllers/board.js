@@ -1,11 +1,10 @@
+import {CardController} from "../controllers/card.js";
 import {Board} from "../components/board.js";
 import {CardList} from "../components/card-list.js";
-import {Sort} from '../components/sorting.js';
-import {Card} from '../components/card.js';
-import {CardEdit} from '../components/card-edit.js';
-import {LoadMore} from '../components/load-more.js';
-import {NotTasks} from '../components/no-tasks.js';
-import {renderElement, removeNode, isEscButton} from "../util.js";
+import {Sort} from "../components/sorting.js";
+import {LoadMore} from "../components/load-more.js";
+import {NotTasks} from "../components/no-tasks.js";
+import {renderElement, removeNode} from "../util.js";
 
 const CARD_COUNT = 8;
 
@@ -19,6 +18,7 @@ export class BoardController {
     this._sort = new Sort();
     this._loadMore = new LoadMore();
     this._notTasks = new NotTasks();
+    this._dataChangeHandler = this._dataChangeHandler.bind(this);
   }
 
   init() {
@@ -35,7 +35,6 @@ export class BoardController {
     this._sort.getElement().addEventListener(`click`, (evt) => this._sortClickHandler(evt));
 
     const filterNameAll = this._filters.filter((element) => element.title === `All`).map((element) => element.count).join(``);
-
     if (!parseInt(filterNameAll, 10)) {
       removeNode(this._board.getElement());
       removeNode(this._loadMore.getElement());
@@ -45,44 +44,31 @@ export class BoardController {
     }
   }
 
+  _renderBoard(elements) {
+    removeNode(this._cardList.getElement());
+    this._cardList.removeElement();
+
+    renderElement(this._sort.getElement(), this._cardList.getElement(), `afterend`);
+    for (let i = 0; i < CARD_COUNT; i++) {
+      this._renderCard(elements[i]);
+    }
+  }
+
   _renderCard(element) {
-    const cardComponent = new Card(element);
-    const cardEditComponent = new CardEdit(element);
-    const cardElement = cardComponent.getElement();
-    const cardEditElement = cardEditComponent.getElement();
-
-    const escKeyDownHandler = (evt) => {
-      if (isEscButton(evt)) {
-        this._cardList.getElement().replaceChild(cardElement, cardEditElement);
-        document.removeEventListener(`keydown`, escKeyDownHandler);
-      }
-    };
-
-    cardElement.querySelector(`.card__btn--edit`).addEventListener(`click`, () => {
-      this._cardList.getElement().replaceChild(cardEditElement, cardElement);
-      document.addEventListener(`keydown`, escKeyDownHandler);
-    });
-
-    cardEditElement.querySelector(`form`).addEventListener(`submit`, () => {
-      this._cardList.getElement().replaceChild(cardElement, cardEditElement);
-      document.removeEventListener(`keydown`, escKeyDownHandler);
-    });
-
-    cardEditElement.querySelector(`textarea`).addEventListener(`focus`, () => {
-      document.removeEventListener(`keydown`, escKeyDownHandler);
-    });
-
-    cardEditElement.querySelector(`textarea`).addEventListener(`blur`, () => {
-      document.addEventListener(`keydown`, escKeyDownHandler);
-    });
-
-    renderElement(this._cardList.getElement(), cardElement);
+    const cardController = new CardController(this._cardList, element, this._dataChangeHandler);
+    cardController.init();
   }
 
   _renderCards(elements) {
     for (let i = 0; i < CARD_COUNT; i++) {
       this._renderCard(elements[i]);
     }
+  }
+
+  _dataChangeHandler(newData, oldData) {
+    this._cards[this._cards.findIndex((element) => element === oldData)] = newData;
+
+    this._renderBoard(this._cards);
   }
 
   _loadMoreClickHandler() {

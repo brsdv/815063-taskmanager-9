@@ -1,8 +1,9 @@
 const ESC_KEYDOWN = 27;
 
 const Position = {
+  BEFOREEND: `beforeend`,
   AFTERBEGIN: `afterbegin`,
-  BEFOREEND: `beforeend`
+  AFTEREND: `afterend`
 };
 
 export const isEscButton = (evt) => evt.keyCode === ESC_KEYDOWN;
@@ -20,6 +21,9 @@ export const renderElement = (container, markup, place = Position.BEFOREEND) => 
       break;
     case Position.BEFOREEND:
       container.append(markup);
+      break;
+    case Position.AFTEREND:
+      container.after(markup);
       break;
   }
 };
