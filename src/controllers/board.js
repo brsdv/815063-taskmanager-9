@@ -1,4 +1,4 @@
-import {CardController} from "../controllers/card.js";
+import {CardController} from "./card.js";
 import {Board} from "../components/board.js";
 import {CardList} from "../components/card-list.js";
 import {Sort} from "../components/sorting.js";
@@ -14,8 +14,8 @@ export class BoardController {
     this._cards = cards;
     this._filters = filters;
     this._board = new Board();
-    this._cardList = new CardList();
     this._sort = new Sort();
+    this._cardList = new CardList();
     this._loadMore = new LoadMore();
     this._notTasks = new NotTasks();
     this._dataChangeHandler = this._dataChangeHandler.bind(this);
@@ -25,14 +25,17 @@ export class BoardController {
     renderElement(this._container, this._board.getElement());
     renderElement(this._board.getElement(), this._sort.getElement(), `afterbegin`);
     renderElement(this._board.getElement(), this._cardList.getElement());
-    renderElement(this._board.getElement(), this._loadMore.getElement());
 
     for (let i = 0; i < CARD_COUNT; i++) {
       this._renderCard(this._cards[i]);
     }
 
-    this._loadMore.getElement().addEventListener(`click`, () => this._loadMoreClickHandler());
     this._sort.getElement().addEventListener(`click`, (evt) => this._sortClickHandler(evt));
+
+    if (this._cards.length > CARD_COUNT) {
+      renderElement(this._board.getElement(), this._loadMore.getElement());
+      this._loadMore.getElement().addEventListener(`click`, () => this._loadMoreClickHandler());
+    }
 
     const filterNameAll = this._filters.filter((element) => element.title === `All`).map((element) => element.count).join(``);
     if (!parseInt(filterNameAll, 10)) {

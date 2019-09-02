@@ -9,6 +9,8 @@ export class CardController {
     this._card = new Card(data);
     this._cardEdit = new CardEdit(data);
     this._dataChangeHandler = dataChangeHandler;
+
+    this._updateBoolean = this._getFormData();
   }
 
   init() {
@@ -22,14 +24,19 @@ export class CardController {
       }
     };
 
+    const cardClickButtonHandler = (evt, value) => {
+      if (evt.target.classList.contains(`card__btn--disabled`)) {
+        evt.target.classList.remove(`card__btn--disabled`);
+        this._updateBoolean[value] = true;
+      } else {
+        evt.target.classList.add(`card__btn--disabled`);
+        this._updateBoolean[value] = false;
+      }
+    };
+
     cardElement.querySelector(`.card__btn--edit`).addEventListener(`click`, () => {
       this._container.getElement().replaceChild(cardEditElement, cardElement);
       document.addEventListener(`keydown`, escKeyDownHandler);
-    });
-
-    cardEditElement.querySelector(`form`).addEventListener(`submit`, (evt) => {
-      this._container.getElement().replaceChild(cardElement, cardEditElement);
-      evt.preventDefault();
     });
 
     cardEditElement.querySelector(`textarea`).addEventListener(`focus`, () => {
@@ -40,35 +47,61 @@ export class CardController {
       document.addEventListener(`keydown`, escKeyDownHandler);
     });
 
-    cardEditElement.querySelector(`.card__save`).addEventListener(`click`, (evt) => {
+    cardElement.querySelector(`.card__btn--favorites`).addEventListener(`click`, (evt) => {
+      cardClickButtonHandler(evt, `isFavorite`);
+      this._dataChangeHandler(this._updateBoolean, this._data);
+    });
+
+    cardEditElement.querySelector(`.card__btn--favorites`).addEventListener(`click`, (evt) => {
+      cardClickButtonHandler(evt, `isFavorite`);
+    });
+
+    cardElement.querySelector(`.card__btn--archive`).addEventListener(`click`, (evt) => {
+      cardClickButtonHandler(evt, `isArchive`);
+      this._dataChangeHandler(this._updateBoolean, this._data);
+    });
+
+    cardEditElement.querySelector(`.card__btn--archive`).addEventListener(`click`, (evt) => {
+      cardClickButtonHandler(evt, `isArchive`);
+    });
+
+    cardEditElement.querySelector(`form`).addEventListener(`submit`, (evt) => {
       evt.preventDefault();
 
-      const formData = new FormData(cardEditElement.querySelector(`.card__form`));
-
-      const entry = {
-        description: formData.get(`text`),
-        color: formData.get(`color`),
-        tags: new Set(formData.getAll(`hashtag`)),
-        dueDate: formData.get(`date`),
-        repeatingDays: formData.getAll(`repeat`).reduce((acc, item) => {
-          acc[item] = true;
-          return acc;
-        }, {
-          'Mo': false,
-          'Tu': false,
-          'We': false,
-          'Th': false,
-          'Fr': false,
-          'Sa': false,
-          'Su': false,
-        })
-      };
-
-      this._dataChangeHandler(entry, this._data);
+      this._dataChangeHandler(this._getFormData(), this._data);
 
       document.removeEventListener(`keydown`, escKeyDownHandler);
     });
 
     renderElement(this._container.getElement(), cardElement);
+  }
+
+  _getFormData() {
+    const formData = new FormData(this._cardEdit.getElement().querySelector(`.card__form`));
+    const isFavorite = this._cardEdit.getElement().querySelector(`.card__btn--favorites`).classList.contains(`card__btn--disabled`) ? false : true;
+    const isArchive = this._cardEdit.getElement().querySelector(`.card__btn--archive`).classList.contains(`card__btn--disabled`) ? false : true;
+
+    const entry = {
+      description: formData.get(`text`),
+      color: formData.get(`color`),
+      tags: new Set(formData.getAll(`hashtag`)),
+      dueDate: formData.get(`date`),
+      repeatingDays: formData.getAll(`repeat`).reduce((acc, item) => {
+        acc[item] = true;
+        return acc;
+      }, {
+        'Mo': false,
+        'Tu': false,
+        'We': false,
+        'Th': false,
+        'Fr': false,
+        'Sa': false,
+        'Su': false,
+      }),
+      isFavorite,
+      isArchive
+    };
+
+    return entry;
   }
 }
