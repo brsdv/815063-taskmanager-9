@@ -85,7 +85,7 @@ export class CardController {
       description: formData.get(`text`),
       color: formData.get(`color`),
       tags: new Set(formData.getAll(`hashtag`)),
-      dueDate: formData.get(`date`),
+      dueDate: Date.parse(formData.get(`date`)),
       repeatingDays: formData.getAll(`repeat`).reduce((acc, item) => {
         acc[item] = true;
         return acc;

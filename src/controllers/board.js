@@ -3,10 +3,8 @@ import {Board} from "../components/board.js";
 import {CardList} from "../components/card-list.js";
 import {Sort} from "../components/sorting.js";
 import {LoadMore} from "../components/load-more.js";
-import {NotTasks} from "../components/no-tasks.js";
+import {NotCards} from "../components/no-cards.js";
 import {renderElement, removeNode} from "../util.js";
-
-const CARD_COUNT = 8;
 
 export class BoardController {
   constructor(container, cards, filters) {
@@ -17,7 +15,15 @@ export class BoardController {
     this._sort = new Sort();
     this._cardList = new CardList();
     this._loadMore = new LoadMore();
-    this._notTasks = new NotTasks();
+    this._notCards = new NotCards();
+    this._sortCards = cards; // Сортированный массив карточек
+    this._STEP_RENDER_CARDS = 8; // Шаг с которым рендерим карточки
+    this._CURRENT_CARDS = 8; // Текущее значение карточек на странице
+    this._cardLoad = {
+      current: this._CURRENT_CARDS,
+      step: this._STEP_RENDER_CARDS,
+      total: this._cards.length
+    };
     this._dataChangeHandler = this._dataChangeHandler.bind(this);
   }
 
@@ -26,24 +32,19 @@ export class BoardController {
     renderElement(this._board.getElement(), this._sort.getElement(), `afterbegin`);
     renderElement(this._board.getElement(), this._cardList.getElement());
 
-    for (let i = 0; i < CARD_COUNT; i++) {
-      this._renderCard(this._cards[i]);
+    if (this._cards.length === 0) {
+      removeNode(this._board.getElement());
+      renderElement(this._container, this._notCards.getElement());
+      return;
     }
+
+    this._cards.slice(0, this._CURRENT_CARDS).forEach((element) => this._renderCard(element));
 
     this._sort.getElement().addEventListener(`click`, (evt) => this._sortClickHandler(evt));
 
-    if (this._cards.length > CARD_COUNT) {
+    if (this._cards.length > this._STEP_RENDER_CARDS) {
       renderElement(this._board.getElement(), this._loadMore.getElement());
       this._loadMore.getElement().addEventListener(`click`, () => this._loadMoreClickHandler());
-    }
-
-    const filterNameAll = this._filters.filter((element) => element.title === `All`).map((element) => element.count).join(``);
-    if (!parseInt(filterNameAll, 10)) {
-      removeNode(this._board.getElement());
-      removeNode(this._loadMore.getElement());
-      this._loadMore.removeElement();
-
-      renderElement(this._container, this._notTasks.getElement());
     }
   }
 
@@ -52,9 +53,7 @@ export class BoardController {
     this._cardList.removeElement();
 
     renderElement(this._sort.getElement(), this._cardList.getElement(), `afterend`);
-    for (let i = 0; i < CARD_COUNT; i++) {
-      this._renderCard(elements[i]);
-    }
+    elements.slice(0, this._cardLoad.current).forEach((element) => this._renderCard(element));
   }
 
   _renderCard(element) {
@@ -62,29 +61,25 @@ export class BoardController {
     cardController.init();
   }
 
-  _renderCards(elements) {
-    for (let i = 0; i < CARD_COUNT; i++) {
-      this._renderCard(elements[i]);
-    }
-  }
-
   _dataChangeHandler(newData, oldData) {
     this._cards[this._cards.findIndex((element) => element === oldData)] = newData;
+    this._sortCards[this._sortCards.findIndex((element) => element === oldData)] = newData;
 
-    this._renderBoard(this._cards);
+    this._renderBoard(this._sortCards);
   }
 
   _loadMoreClickHandler() {
-    const totalCardsCount = this._cards.length;
-    const currentCardsCount = this._cardList.getElement().querySelectorAll(`.card`).length;
+    const currentCards = this._cardLoad.current;
+    const stepCards = currentCards + this._cardLoad.step;
 
-    if (totalCardsCount > currentCardsCount) {
-      for (let i = currentCardsCount; i < totalCardsCount; i++) {
-        this._renderCard(this._cards[i]);
-      }
-    } else {
+    this._sortCards.slice(currentCards, stepCards).forEach((element) => this._renderCard(element));
+
+    if (stepCards >= this._cardLoad.total) {
       removeNode(this._loadMore.getElement());
       this._loadMore.removeElement();
+      this._cardLoad.current = this._cardLoad.total;
+    } else {
+      this._cardLoad.current = stepCards;
     }
   }
 
@@ -95,20 +90,20 @@ export class BoardController {
       return;
     }
 
-    this._cardList.getElement().innerHTML = ``;
-
     switch (evt.target.dataset.sortType) {
       case `default`:
-        this._renderCards(this._cards);
+        this._sortCards = this._cards.slice();
         break;
       case `date-up`:
         const sortedUpCards = this._cards.slice().sort((a, b) => a.dueDate - b.dueDate);
-        this._renderCards(sortedUpCards);
+        this._sortCards = sortedUpCards;
         break;
       case `date-down`:
         const sortedDownCards = this._cards.slice().sort((a, b) => b.dueDate - a.dueDate);
-        this._renderCards(sortedDownCards);
+        this._sortCards = sortedDownCards;
         break;
     }
+
+    this._renderBoard(this._sortCards);
   }
 }
