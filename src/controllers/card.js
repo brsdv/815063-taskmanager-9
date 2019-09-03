@@ -3,53 +3,51 @@ import {CardEdit} from "../components/card-edit.js";
 import {renderElement, isEscButton} from "../util.js";
 
 export class CardController {
-  constructor(container, data, dataChangeHandler) {
+  constructor(container, data, dataChangeHandler, changeViewHandler) {
     this._container = container;
     this._data = data;
     this._card = new Card(data);
     this._cardEdit = new CardEdit(data);
     this._dataChangeHandler = dataChangeHandler;
-
-    this._updateBoolean = this._getFormData();
+    this._changeViewHandler = changeViewHandler;
+    this._escKeyDownHandler = this._escKeyDownHandler.bind(this);
+    this._updateBooleanData = this._getFormData();
   }
 
   init() {
     const cardElement = this._card.getElement();
     const cardEditElement = this._cardEdit.getElement();
 
-    const escKeyDownHandler = (evt) => {
-      if (isEscButton(evt)) {
-        this._container.getElement().replaceChild(cardElement, cardEditElement);
-        document.removeEventListener(`keydown`, escKeyDownHandler);
-      }
-    };
-
     const cardClickButtonHandler = (evt, value) => {
       if (evt.target.classList.contains(`card__btn--disabled`)) {
         evt.target.classList.remove(`card__btn--disabled`);
-        this._updateBoolean[value] = true;
+        this._updateBooleanData[value] = true;
       } else {
         evt.target.classList.add(`card__btn--disabled`);
-        this._updateBoolean[value] = false;
+        this._updateBooleanData[value] = false;
       }
     };
 
-    cardElement.querySelector(`.card__btn--edit`).addEventListener(`click`, () => {
+    cardElement.querySelector(`.card__btn--edit`).addEventListener(`click`, (evt) => {
+      evt.preventDefault();
+
+      this._changeViewHandler();
       this._container.getElement().replaceChild(cardEditElement, cardElement);
-      document.addEventListener(`keydown`, escKeyDownHandler);
+
+      document.addEventListener(`keydown`, this._escKeyDownHandler);
     });
 
     cardEditElement.querySelector(`textarea`).addEventListener(`focus`, () => {
-      document.removeEventListener(`keydown`, escKeyDownHandler);
+      document.removeEventListener(`keydown`, this._escKeyDownHandler);
     });
 
     cardEditElement.querySelector(`textarea`).addEventListener(`blur`, () => {
-      document.addEventListener(`keydown`, escKeyDownHandler);
+      document.addEventListener(`keydown`, this._escKeyDownHandler);
     });
 
     cardElement.querySelector(`.card__btn--favorites`).addEventListener(`click`, (evt) => {
       cardClickButtonHandler(evt, `isFavorite`);
-      this._dataChangeHandler(this._updateBoolean, this._data);
+      this._dataChangeHandler(this._updateBooleanData, this._data);
     });
 
     cardEditElement.querySelector(`.card__btn--favorites`).addEventListener(`click`, (evt) => {
@@ -58,7 +56,7 @@ export class CardController {
 
     cardElement.querySelector(`.card__btn--archive`).addEventListener(`click`, (evt) => {
       cardClickButtonHandler(evt, `isArchive`);
-      this._dataChangeHandler(this._updateBoolean, this._data);
+      this._dataChangeHandler(this._updateBooleanData, this._data);
     });
 
     cardEditElement.querySelector(`.card__btn--archive`).addEventListener(`click`, (evt) => {
@@ -70,10 +68,24 @@ export class CardController {
 
       this._dataChangeHandler(this._getFormData(), this._data);
 
-      document.removeEventListener(`keydown`, escKeyDownHandler);
+      document.removeEventListener(`keydown`, this._escKeyDownHandler);
     });
 
     renderElement(this._container.getElement(), cardElement);
+  }
+
+  setDefaultView() {
+    if (this._container.getElement().contains(this._cardEdit.getElement())) {
+      this._container.getElement().replaceChild(this._card.getElement(), this._cardEdit.getElement());
+    }
+    document.removeEventListener(`keydown`, this._escKeyDownHandler);
+  }
+
+  _escKeyDownHandler(evt) {
+    if (isEscButton(evt)) {
+      this._container.getElement().replaceChild(this._card.getElement(), this._cardEdit.getElement());
+      document.removeEventListener(`keydown`, this._escKeyDownHandler);
+    }
   }
 
   _getFormData() {
@@ -85,7 +97,7 @@ export class CardController {
       description: formData.get(`text`),
       color: formData.get(`color`),
       tags: new Set(formData.getAll(`hashtag`)),
-      dueDate: Date.parse(formData.get(`date`)),
+      dueDate: formData.get(`date`) === null ? `` : Date.parse(formData.get(`date`)),
       repeatingDays: formData.getAll(`repeat`).reduce((acc, item) => {
         acc[item] = true;
         return acc;

@@ -24,7 +24,9 @@ export class BoardController {
       step: this._STEP_RENDER_CARDS,
       total: this._cards.length
     };
+    this._subscriptions = [];
     this._dataChangeHandler = this._dataChangeHandler.bind(this);
+    this._changeViewHandler = this._changeViewHandler.bind(this);
   }
 
   init() {
@@ -57,14 +59,18 @@ export class BoardController {
   }
 
   _renderCard(element) {
-    const cardController = new CardController(this._cardList, element, this._dataChangeHandler);
+    const cardController = new CardController(this._cardList, element, this._dataChangeHandler, this._changeViewHandler);
     cardController.init();
+    this._subscriptions.push(cardController.setDefaultView.bind(cardController));
+  }
+
+  _changeViewHandler() {
+    this._subscriptions.forEach((item) => item());
   }
 
   _dataChangeHandler(newData, oldData) {
     this._cards[this._cards.findIndex((element) => element === oldData)] = newData;
     this._sortCards[this._sortCards.findIndex((element) => element === oldData)] = newData;
-
     this._renderBoard(this._sortCards);
   }
 

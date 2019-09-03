@@ -4,12 +4,17 @@ export class CardEdit extends AbstractComponent {
   constructor({description, dueDate, repeatingDays, tags, color, isFavorite, isArchive}) {
     super();
     this._description = description;
-    this._dueDate = new Date(dueDate);
+    this._dueDate = dueDate;
     this._repeatingDays = repeatingDays;
     this._tags = Array.from(tags);
     this._color = color;
     this._isFavorite = isFavorite;
     this._isArchive = isArchive;
+
+    this._setDate();
+    this._setRepeat();
+    this._setColor();
+    this._subscribeEvents();
   }
 
   getTemplate() {
@@ -55,11 +60,11 @@ export class CardEdit extends AbstractComponent {
               <fieldset class="card__date-deadline">
                 <label class="card__input-deadline-wrap">
                   <input
-                    class="card__date"
+                    class="card__date ${this._dueDate ? `` : `visually-hidden`}"
                     type="text"
                     placeholder=""
                     name="date"
-                    value="${this._dueDate.toDateString()}"
+                    value="${this._dueDate ? new Date(this._dueDate).toDateString() : ``}"
                   />
                 </label>
               </fieldset>
@@ -69,7 +74,7 @@ export class CardEdit extends AbstractComponent {
               </button>
   
               <fieldset class="card__repeat-days">
-                <div class="card__repeat-days-inner">
+                <div class="card__repeat-days-inner ${Object.keys(this._repeatingDays).some((element) => this._repeatingDays[element]) ? `` : `visually-hidden`}">
                   ${Object.keys(this._repeatingDays).map((element) => `<input
                     class="visually-hidden card__repeat-day-input"
                     type="checkbox"
@@ -90,7 +95,7 @@ export class CardEdit extends AbstractComponent {
                   <input
                     type="hidden"
                     name="hashtag"
-                    value="repeat"
+                    value="${element}"
                     class="card__hashtag-hidden-input"
                   />
                   <p class="card__hashtag-name">
@@ -116,6 +121,7 @@ export class CardEdit extends AbstractComponent {
           <div class="card__colors-inner">
             <h3 class="card__colors-title">Color</h3>
             <div class="card__colors-wrap">
+
             ${[`black`, `yellow`, `blue`, `green`, `pink`].map((element) => `<input
             type="radio"
             id="color-${element}-4"
@@ -129,6 +135,7 @@ export class CardEdit extends AbstractComponent {
             class="card__color card__color--${element}"
             >${element}</label
           >`).join(``)}
+
             </div>
           </div>
         </div>
@@ -140,5 +147,99 @@ export class CardEdit extends AbstractComponent {
       </div>
     </form>
     </article>`.trim();
+  }
+
+  _setDate() {
+    const dateStatus = this.getElement().querySelector(`.card__date-status`);
+    const dateInput = this.getElement().querySelector(`.card__date`);
+
+    this.getElement().querySelector(`.card__date-deadline-toggle`).addEventListener(`click`, () => {
+      if (dateStatus.textContent === `yes`) {
+        dateStatus.textContent = `no`;
+        dateInput.classList.add(`visually-hidden`);
+        dateInput.value = ``;
+      } else {
+        dateStatus.textContent = `yes`;
+        dateInput.classList.remove(`visually-hidden`);
+        dateInput.value = new Date(Date.now()).toDateString();
+      }
+    });
+  }
+
+  _setRepeat() {
+    const repeatStatus = this.getElement().querySelector(`.card__repeat-status`);
+    const repeatInputs = this.getElement().querySelector(`.card__repeat-days-inner`);
+
+    this.getElement().querySelector(`.card__repeat-toggle`).addEventListener(`click`, () => {
+      if (repeatStatus.textContent === `yes`) {
+        repeatStatus.textContent = `no`;
+        repeatInputs.classList.add(`visually-hidden`);
+        this.getElement().classList.remove(`card--repeat`);
+        defaultRepeatHandler(this._repeatingDays, repeatInputs);
+      } else {
+        repeatStatus.textContent = `yes`;
+        repeatInputs.classList.remove(`visually-hidden`);
+        this.getElement().classList.add(`card--repeat`);
+      }
+    });
+
+    const defaultRepeatHandler = (elements, container) => {
+      Object.keys(elements).forEach((item) => {
+        elements[item] = false;
+      });
+      container.innerHTML = `${Object.keys(elements).map((item) => `<input
+        class="visually-hidden card__repeat-day-input"
+        type="checkbox"
+        id="repeat-${item.toLowerCase()}-4"
+        name="repeat"
+        value="${item}"
+        ${elements[item] ? `checked` : ``}/>
+        <label class="card__repeat-day" for="repeat-${item.toLowerCase()}-4"
+      >${item}</label>`).join(``)}`;
+    };
+  }
+
+  _setColor() {
+    this.getElement().querySelectorAll(`.card__color`).forEach((element) => {
+      element.addEventListener(`click`, (evt) => {
+        this.getElement().classList.remove(`card--${this._color}`);
+        this._color = evt.target.textContent;
+        this.getElement().classList.add(`card--${this._color}`);
+      });
+    });
+  }
+
+  _subscribeEvents() {
+    const keyDownEnterHandler = (evt) => {
+      if (evt.key === `Enter` && evt.target.value) {
+        evt.preventDefault();
+
+        this.getElement().querySelector(`.card__hashtag-list`).insertAdjacentHTML(`beforeend`, `<span class="card__hashtag-inner">
+          <input
+            type="hidden"
+            name="hashtag"
+            value="${evt.target.value}"
+            class="card__hashtag-hidden-input"
+          />
+          <p class="card__hashtag-name">
+            #${evt.target.value}
+          </p>
+          <button type="button" class="card__hashtag-delete">
+            delete
+          </button>
+        </span>`);
+
+        evt.target.value = ``;
+      }
+      document.removeEventListener(`keydown`, keyDownEnterHandler);
+    };
+
+    this.getElement().querySelector(`.card__hashtag-input`).addEventListener(`keydown`, keyDownEnterHandler);
+
+    this.getElement().querySelectorAll(`.card__hashtag-inner`).forEach((element) => {
+      element.querySelector(`.card__hashtag-delete`).addEventListener(`click`, () => {
+        element.remove();
+      });
+    });
   }
 }
