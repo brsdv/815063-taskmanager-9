@@ -1,13 +1,13 @@
 const TOTAL_CARD_COUNT = 16;
 
 const getRandomTags = () => {
-  const tags = new Set([
+  const tags = [
     `homework`,
     `theory`,
     `practice`,
     `intensive`,
     `keks`
-  ]);
+  ];
 
   // Тассование массива Фишера Йетса
   const shuffle = function (array) {
@@ -45,7 +45,7 @@ const getCardData = () => ({
     'Sa': false,
     'Su': false,
   },
-  tags: getRandomTags().slice(0, 3),
+  tags: new Set(getRandomTags().slice(0, 3)),
   color: [
     `black`,
     `yellow`,

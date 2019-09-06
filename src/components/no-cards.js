@@ -1,6 +1,6 @@
 import {AbstractComponent} from "./abstract-component";
 
-export class NotTasks extends AbstractComponent {
+export class NotCards extends AbstractComponent {
   getTemplate() {
     return `<section class="board container">
         <p class="board__no-tasks">

@@ -4,7 +4,7 @@ export class Card extends AbstractComponent {
   constructor({description, dueDate, repeatingDays, tags, color, isFavorite, isArchive}) {
     super();
     this._description = description;
-    this._dueDate = new Date(dueDate);
+    this._dueDate = dueDate;
     this._repeatingDays = repeatingDays;
     this._tags = Array.from(tags);
     this._color = color;
@@ -44,8 +44,7 @@ export class Card extends AbstractComponent {
               <div class="card__dates">
                 <div class="card__date-deadline">
                   <p class="card__input-deadline-wrap">
-                    <span class="card__date">${this._dueDate.toDateString()}</span>
-                    <!--<span class="card__time">${this._dueDate.getHours()}:${this._dueDate.getMinutes()}</span>-->
+                    <span class="card__date ${this._dueDate ? `` : `visually-hidden`}">${new Date(this._dueDate).toDateString()}</span>
                   </p>
                 </div>
               </div>
