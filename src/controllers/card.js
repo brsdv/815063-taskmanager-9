@@ -1,6 +1,9 @@
 import {Card} from "../components/card.js";
 import {CardEdit} from "../components/card-edit.js";
 import {renderElement, isEscButton} from "../util.js";
+import flatpickr from "flatpickr";
+import "flatpickr/dist/flatpickr.min.css";
+import "flatpickr/dist/themes/light.css";
 
 export class CardController {
   constructor(container, data, dataChangeHandler, changeViewHandler) {
@@ -17,6 +20,14 @@ export class CardController {
   init() {
     const cardElement = this._card.getElement();
     const cardEditElement = this._cardEdit.getElement();
+
+    flatpickr(cardEditElement.querySelector(`.card__date`), {
+      altInput: true,
+      allowInput: true,
+      altFormat: `j F`,
+      dateFormat: `Y-m-d`,
+      defaultDate: this._data.dueDate,
+    });
 
     const cardClickButtonHandler = (evt, value) => {
       if (evt.target.classList.contains(`card__btn--disabled`)) {

@@ -1,4 +1,5 @@
 import {AbstractComponent} from "./abstract-component";
+import moment from "moment";
 
 export class CardEdit extends AbstractComponent {
   constructor({description, dueDate, repeatingDays, tags, color, isFavorite, isArchive}) {
@@ -58,13 +59,13 @@ export class CardEdit extends AbstractComponent {
               </button>
   
               <fieldset class="card__date-deadline">
-                <label class="card__input-deadline-wrap">
+                <label class="card__input-deadline-wrap ${this._dueDate ? `` : `visually-hidden`}">
                   <input
-                    class="card__date ${this._dueDate ? `` : `visually-hidden`}"
+                    class="card__date"
                     type="text"
                     placeholder=""
                     name="date"
-                    value="${this._dueDate ? new Date(this._dueDate).toDateString() : ``}"
+                    value="${this._dueDate ? moment().format(`YYYY-MM-DD`) : moment(Date.now()).format(`YYYY-MM-DD`)}"
                   />
                 </label>
               </fieldset>
@@ -151,17 +152,17 @@ export class CardEdit extends AbstractComponent {
 
   _setDate() {
     const dateStatus = this.getElement().querySelector(`.card__date-status`);
-    const dateInput = this.getElement().querySelector(`.card__date`);
+    const dateLabel = this.getElement().querySelector(`.card__input-deadline-wrap`);
 
     this.getElement().querySelector(`.card__date-deadline-toggle`).addEventListener(`click`, () => {
       if (dateStatus.textContent === `yes`) {
         dateStatus.textContent = `no`;
-        dateInput.classList.add(`visually-hidden`);
-        dateInput.value = ``;
+        dateLabel.classList.add(`visually-hidden`);
+        dateLabel.querySelector(`.flatpickr-input`).value = ``;
       } else {
         dateStatus.textContent = `yes`;
-        dateInput.classList.remove(`visually-hidden`);
-        dateInput.value = new Date(Date.now()).toDateString();
+        dateLabel.classList.remove(`visually-hidden`);
+        dateLabel.querySelector(`.flatpickr-input`).value = moment(Date.now()).format(`YYYY-MM-DD`);
       }
     });
   }
