@@ -23,7 +23,6 @@ export class CardController {
 
     flatpickr(cardEditElement.querySelector(`.card__date`), {
       altInput: true,
-      allowInput: true,
       altFormat: `j F`,
       dateFormat: `Y-m-d`,
       defaultDate: this._data.dueDate,
@@ -80,6 +79,12 @@ export class CardController {
       this._dataChangeHandler(this._getFormData(), this._data);
 
       document.removeEventListener(`keydown`, this._escKeyDownHandler);
+    });
+
+    cardEditElement.querySelector(`.card__delete`).addEventListener(`click`, (evt) => {
+      evt.preventDefault();
+
+      this._dataChangeHandler(null, this._data);
     });
 
     renderElement(this._container.getElement(), cardElement);

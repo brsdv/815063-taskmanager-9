@@ -77,9 +77,16 @@ export class BoardController {
   }
 
   _dataChangeHandler(newData, oldData) {
-    this._cards[this._cards.findIndex((element) => element === oldData)] = newData;
-    this._sortCards[this._sortCards.findIndex((element) => element === oldData)] = newData;
-    this._renderBoard(this._sortCards);
+    this._cards = this._sortCards;
+    const index = this._cards.findIndex((element) => element === oldData);
+
+    if (newData === null) {
+      this._cards = [...this._cards.slice(0, index), ...this._cards.slice(index + 1)];
+    } else {
+      this._cards[index] = newData;
+    }
+
+    this._renderBoard(this._cards);
   }
 
   _loadMoreClickHandler() {
