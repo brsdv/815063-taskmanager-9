@@ -1,9 +1,20 @@
 const ESC_KEYDOWN = 27;
 
-const Position = {
+export const Position = {
   BEFOREEND: `beforeend`,
   AFTERBEGIN: `afterbegin`,
   AFTEREND: `afterend`
+};
+
+export const SortType = {
+  DEFAULT: `default`,
+  DATEUP: `date-up`,
+  DATEDOWN: `date-down`
+};
+
+export const MenuId = {
+  TASK: `control__task`,
+  STATISTIC: `control__statistic`
 };
 
 export const isEscButton = (evt) => evt.keyCode === ESC_KEYDOWN;

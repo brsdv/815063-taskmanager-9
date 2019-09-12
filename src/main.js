@@ -4,7 +4,7 @@ import {Search} from './components/search.js';
 import {Filter} from './components/filter.js';
 import {BoardController} from "./controllers/board.js";
 import {totalCards, filters} from './data.js';
-import {renderElement} from "./util.js";
+import {renderElement, MenuId} from "./util.js";
 
 const mainElement = document.querySelector(`main`);
 const mainControlElement = mainElement.querySelector(`.main__control`);
@@ -30,11 +30,11 @@ menu.getElement().addEventListener(`change`, (evt) => {
   }
 
   switch (evt.target.id) {
-    case `control__task`:
+    case MenuId.TASK:
       statistic.getElement().classList.add(`visually-hidden`);
       boardController.show();
       break;
-    case `control__statistic`:
+    case MenuId.STATISTIC:
       statistic.getElement().classList.remove(`visually-hidden`);
       boardController.hide();
       break;

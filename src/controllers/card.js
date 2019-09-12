@@ -15,6 +15,7 @@ export class CardController {
     this._changeViewHandler = changeViewHandler;
     this._escKeyDownHandler = this._escKeyDownHandler.bind(this);
     this._updateBooleanData = this._getFormData();
+    this.init();
   }
 
   init() {
@@ -81,9 +82,7 @@ export class CardController {
       document.removeEventListener(`keydown`, this._escKeyDownHandler);
     });
 
-    cardEditElement.querySelector(`.card__delete`).addEventListener(`click`, (evt) => {
-      evt.preventDefault();
-
+    cardEditElement.querySelector(`.card__delete`).addEventListener(`click`, () => {
       this._dataChangeHandler(null, this._data);
     });
 
