@@ -13,8 +13,14 @@ export const SortType = {
 };
 
 export const MenuId = {
+  NEW_TASK: `control__new-task`,
   TASK: `control__task`,
   STATISTIC: `control__statistic`
+};
+
+export const Mode = {
+  DEFAULT: `default`,
+  ADDING: `adding`
 };
 
 export const isEscButton = (evt) => evt.keyCode === ESC_KEYDOWN;

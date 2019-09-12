@@ -4,7 +4,7 @@ import {CardList} from "../components/card-list.js";
 import {Sort} from "../components/sorting.js";
 import {LoadMore} from "../components/load-more.js";
 import {NotCards} from "../components/no-cards.js";
-import {renderElement, removeNode, Position, SortType} from "../util.js";
+import {renderElement, removeNode, Position, SortType, Mode} from "../util.js";
 
 export class BoardController {
   constructor(container, cards, filters) {
@@ -25,6 +25,7 @@ export class BoardController {
       total: this._cards.length
     };
     this._subscriptions = [];
+    this._creatingCard = null;
     this._dataChangeHandler = this._dataChangeHandler.bind(this);
     this._changeViewHandler = this._changeViewHandler.bind(this);
   }
@@ -66,6 +67,32 @@ export class BoardController {
     this._board.getElement().classList.remove(`visually-hidden`);
   }
 
+  createCard() {
+    if (this._creatingCard) {
+      return;
+    }
+
+    const defaultCard = {
+      description: ``,
+      dueDate: Date.now(),
+      repeatingDays: {
+        'Mo': false,
+        'Tu': false,
+        'We': false,
+        'Th': false,
+        'Fr': false,
+        'Sa': false,
+        'Su': false,
+      },
+      tags: new Set(),
+      color: `black`,
+      isFavorite: false,
+      isArchive: false,
+    };
+
+    this._creatingCard = new CardController(this._cardList, defaultCard, Mode.ADDING, this._dataChangeHandler, this._changeViewHandler);
+  }
+
   _renderBoard(elements) {
     removeNode(this._cardList.getElement());
     this._cardList.removeElement();
@@ -80,7 +107,7 @@ export class BoardController {
   }
 
   _renderCard(element) {
-    const cardController = new CardController(this._cardList, element, this._dataChangeHandler, this._changeViewHandler);
+    const cardController = new CardController(this._cardList, element, Mode.DEFAULT, this._dataChangeHandler, this._changeViewHandler);
 
     this._subscriptions.push(cardController.setDefaultView.bind(cardController));
   }
@@ -94,10 +121,15 @@ export class BoardController {
 
     if (newData === null) {
       this._cards = [...this._cards.slice(0, index), ...this._cards.slice(index + 1)];
+    } else if (oldData === null) {
+      this._creatingCard = null;
+      this._cards = [newData, ...this._cards];
     } else {
+      this._creatingCard = null;
       this._cards[index] = newData;
     }
 
+    this._cardLoad.total = this._cards.length;
     this._renderBoard(this._cards);
   }
 
@@ -110,7 +142,7 @@ export class BoardController {
     if (stepCards >= this._cardLoad.total) {
       removeNode(this._loadMore.getElement());
       this._loadMore.removeElement();
-      this._cardLoad.current = this._cardLoad.total;
+      this._cardLoad.current = stepCards;
     } else {
       this._cardLoad.current = stepCards;
     }

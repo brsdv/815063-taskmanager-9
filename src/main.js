@@ -38,5 +38,9 @@ menu.getElement().addEventListener(`change`, (evt) => {
       statistic.getElement().classList.remove(`visually-hidden`);
       boardController.hide();
       break;
+    case MenuId.NEW_TASK:
+      boardController.createCard();
+      menu.getElement().querySelector(`#${MenuId.TASK}`).checked = true;
+      break;
   }
 });
