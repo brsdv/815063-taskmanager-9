@@ -1,12 +1,12 @@
 import {Card} from "../components/card.js";
 import {CardEdit} from "../components/card-edit.js";
-import {renderElement, isEscButton} from "../util.js";
+import {renderElement, isEscButton, Position, Mode} from "../util.js";
 import flatpickr from "flatpickr";
 import "flatpickr/dist/flatpickr.min.css";
 import "flatpickr/dist/themes/light.css";
 
 export class CardController {
-  constructor(container, data, dataChangeHandler, changeViewHandler) {
+  constructor(container, data, mode, dataChangeHandler, changeViewHandler) {
     this._container = container;
     this._data = data;
     this._card = new Card(data);
@@ -15,15 +15,25 @@ export class CardController {
     this._changeViewHandler = changeViewHandler;
     this._escKeyDownHandler = this._escKeyDownHandler.bind(this);
     this._updateBooleanData = this._getFormData();
+    this._currentCard = this._card;
+    this._mode = mode;
+    this.init(mode);
   }
 
-  init() {
+  init(mode) {
     const cardElement = this._card.getElement();
     const cardEditElement = this._cardEdit.getElement();
 
+    let currentPosition = Position.BEFOREEND;
+    this._currentCard = cardElement;
+
+    if (mode === Mode.ADDING) {
+      currentPosition = Position.AFTERBEGIN;
+      this._currentCard = cardEditElement;
+    }
+
     flatpickr(cardEditElement.querySelector(`.card__date`), {
       altInput: true,
-      allowInput: true,
       altFormat: `j F`,
       dateFormat: `Y-m-d`,
       defaultDate: this._data.dueDate,
@@ -77,12 +87,23 @@ export class CardController {
     cardEditElement.querySelector(`form`).addEventListener(`submit`, (evt) => {
       evt.preventDefault();
 
-      this._dataChangeHandler(this._getFormData(), this._data);
+      this._dataChangeHandler(this._getFormData(), mode === Mode.DEFAULT ? this._data : null);
 
       document.removeEventListener(`keydown`, this._escKeyDownHandler);
     });
 
-    renderElement(this._container.getElement(), cardElement);
+    cardEditElement.querySelector(`.card__delete`).addEventListener(`click`, () => {
+      if (mode === Mode.DEFAULT) {
+        this._dataChangeHandler(null, this._data);
+      } else {
+        this._container.getElement().removeChild(this._currentCard);
+        this._dataChangeHandler(this._getFormData(), this._data);
+      }
+
+      document.removeEventListener(`keydown`, this._escKeyDownHandler);
+    });
+
+    renderElement(this._container.getElement(), this._currentCard, currentPosition);
   }
 
   setDefaultView() {
@@ -94,7 +115,16 @@ export class CardController {
 
   _escKeyDownHandler(evt) {
     if (isEscButton(evt)) {
-      this._container.getElement().replaceChild(this._card.getElement(), this._cardEdit.getElement());
+      switch (this._mode) {
+        case Mode.DEFAULT:
+          this._container.getElement().replaceChild(this._card.getElement(), this._cardEdit.getElement());
+          break;
+        case Mode.ADDING:
+          this._container.getElement().removeChild(this._currentCard);
+          this._dataChangeHandler(this._getFormData(), this._data);
+          break;
+      }
+
       document.removeEventListener(`keydown`, this._escKeyDownHandler);
     }
   }
