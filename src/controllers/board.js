@@ -1,5 +1,4 @@
 import {CardController} from "./card.js";
-import {StatsController} from "./stats.js";
 import {Board} from "../components/board.js";
 import {CardList} from "../components/card-list.js";
 import {Sort} from "../components/sorting.js";
@@ -129,9 +128,6 @@ export class BoardController {
       this._creatingCard = null;
       this._cards[index] = newData;
     }
-
-    const statsController = new StatsController(this._container, this._cards);
-    statsController.init();
 
     this._cardLoad.total = this._cards.length;
     this._renderBoard(this._cards);
