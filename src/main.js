@@ -18,6 +18,7 @@ renderElement(mainElement, search.getElement());
 renderElement(mainElement, filter.getElement());
 
 const statsController = new StatsController(mainElement, totalCards);
+statsController.init();
 const boardController = new BoardController(mainElement, totalCards, filters);
 boardController.init();
 

@@ -14,12 +14,12 @@ export class StatsController {
     this._sortDates = this._cards.map((element) => moment(element.dueDate).format(`DD MMM`)).sort();
     this._formatDates = this._cards.map((element) => moment(element.dueDate).format(`YYYY-MM-DD`)).sort();
     this._allTags = this._cardsInTag(this._cards);
+    this._sortColors = this._cards.map((element) => element.color).sort();
     this._statistic = new Statistic();
-    this.init();
   }
 
   init() {
-    renderElement(this._container, this._statistic.getElement());
+    this._renderingStats = renderElement(this._container, this._statistic.getElement());
 
     flatpickr(this._container.querySelector(`.statistic__period-input`), {
       mode: `range`,
@@ -33,7 +33,7 @@ export class StatsController {
     const tagsCtx = this._container.querySelector(`.statistic__tags`);
     const colorsCtx = this._container.querySelector(`.statistic__colors`);
 
-    const daysChart = new Chart(daysCtx, {
+    this._daysChart = new Chart(daysCtx, {
       plugins: [ChartDataLabels],
       type: `line`,
       data: {
@@ -95,7 +95,7 @@ export class StatsController {
       }
     });
 
-    const tagsChart = new Chart(tagsCtx, {
+    this._tagsChart = new Chart(tagsCtx, {
       plugins: [ChartDataLabels],
       type: `pie`,
       data: {
@@ -133,6 +133,74 @@ export class StatsController {
         title: {
           display: true,
           text: `DONE BY: TAGS`,
+          fontSize: 16,
+          fontColor: `#000000`
+        },
+        legend: {
+          position: `left`,
+          labels: {
+            boxWidth: 15,
+            padding: 25,
+            fontStyle: 500,
+            fontColor: `#000000`,
+            fontSize: 13
+          }
+        }
+      }
+    });
+
+    this._colorsChart = new Chart(colorsCtx, {
+      plugins: [ChartDataLabels],
+      type: `pie`,
+      data: {
+        labels: this._uniqueItems(this._sortColors),
+        datasets: [{
+          data: this._numberOfItems(this._sortColors),
+          backgroundColor: this._uniqueItems(this._sortColors).map((element) => {
+            switch (element) {
+              case `black`:
+                return `#000000`;
+              case `blue`:
+                return `#0c5cdd`;
+              case `green`:
+                return `#31b55c`;
+              case `pink`:
+                return `#ff3cb9`;
+              case `yellow`:
+                return `#ffe125`;
+            }
+            return element;
+          })
+        }]
+      },
+      options: {
+        plugins: {
+          datalabels: {
+            display: false
+          }
+        },
+        tooltips: {
+          callbacks: {
+            label: (tooltipItem, data) => {
+              const allData = data.datasets[tooltipItem.datasetIndex].data;
+              const tooltipData = allData[tooltipItem.index];
+              const total = allData.reduce((acc, it) => acc + parseFloat(it));
+              const tooltipPercentage = Math.round((tooltipData / total) * 100);
+              return `${tooltipData} TASKS — ${tooltipPercentage}%`;
+            }
+          },
+          displayColors: true,
+          backgroundColor: `#ffffff`,
+          bodyFontColor: `#000000`,
+          borderColor: `#000000`,
+          borderWidth: 1,
+          cornerRadius: 0,
+          xPadding: 10,
+          yPadding: 10
+        },
+        title: {
+          display: true,
+          text: `DONE BY: COLORS`,
           fontSize: 16,
           fontColor: `#000000`
         },
