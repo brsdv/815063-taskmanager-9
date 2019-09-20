@@ -6,20 +6,26 @@ import {BoardController} from "./controllers/board.js";
 import {totalCards, filters} from "./data.js";
 import {renderElement, MenuId} from "./util.js";
 
+let cardsMock = totalCards;
+
 const mainElement = document.querySelector(`main`);
 const mainControlElement = mainElement.querySelector(`.main__control`);
 
 const menu = new Menu();
 const search = new Search();
 const filter = new Filter(filters);
-const statistics = new Statistic(totalCards);
+const statistic = new Statistic();
+
+const dataChangeHandler = (cards) => {
+  cardsMock = cards;
+};
 
 renderElement(mainControlElement, menu.getElement());
 renderElement(mainElement, search.getElement());
 renderElement(mainElement, filter.getElement());
-renderElement(mainElement, statistics.getElement());
+renderElement(mainElement, statistic.getElement());
 
-const boardController = new BoardController(mainElement, totalCards, filters);
+const boardController = new BoardController(mainElement, dataChangeHandler, cardsMock, filters);
 boardController.init();
 
 menu.getElement().addEventListener(`change`, (evt) => {
@@ -31,11 +37,11 @@ menu.getElement().addEventListener(`change`, (evt) => {
 
   switch (evt.target.id) {
     case MenuId.TASK:
-      statistics.hide();
+      statistic.hide();
       boardController.show();
       break;
     case MenuId.STATISTIC:
-      statistics.show();
+      statistic.show(cardsMock);
       boardController.hide();
       break;
     case MenuId.NEW_TASK:

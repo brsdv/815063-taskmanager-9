@@ -7,8 +7,9 @@ import {NotCards} from "../components/no-cards.js";
 import {renderElement, removeNode, Position, SortType, Mode} from "../util.js";
 
 export class BoardController {
-  constructor(container, cards, filters) {
+  constructor(container, dataChangeHandler, cards, filters) {
     this._container = container;
+    this._dataChangeMainHandler = dataChangeHandler;
     this._cards = cards;
     this._filters = filters;
     this._board = new Board();
@@ -129,8 +130,10 @@ export class BoardController {
       this._cards[index] = newData;
     }
 
+    this._dataChangeMainHandler(this._cards);
+    this._sortCards = this._cards;
     this._cardLoad.total = this._cards.length;
-    this._renderBoard(this._cards);
+    this._renderBoard(this._sortCards);
   }
 
   _loadMoreClickHandler() {

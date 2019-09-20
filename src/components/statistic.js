@@ -7,26 +7,12 @@ import "flatpickr/dist/flatpickr.min.css";
 import "flatpickr/dist/themes/light.css";
 
 export class Statistic extends AbstractComponent {
-  constructor(cards) {
+  constructor() {
     super();
-    this._cards = cards;
-    this._sortDates = this._cards.map((element) => moment(element.dueDate).format(`DD MMM`)).sort();
-    this._formatDates = this._cards.map((element) => moment(element.dueDate).format(`YYYY-MM-DD`)).sort();
-    this._allTags = this._cardsInTag(this._cards);
-    this._sortColors = this._cards.map((element) => element.color).sort();
+    this._cards = [];
     this._daysChart = null;
     this._tagsChart = null;
     this._colorsChart = null;
-    flatpickr(this.getElement().querySelector(`.statistic__period-input`), {
-      mode: `range`,
-      altInput: true,
-      altFormat: `d M`,
-      dateFormat: `Y-m-d`,
-      defaultDate: [this._formatDates[0], this._formatDates[this._formatDates.length - 1]],
-      locale: {
-        rangeSeparator: ` - `
-      }
-    });
   }
 
   getTemplate() {
@@ -77,7 +63,21 @@ export class Statistic extends AbstractComponent {
     this._removeChart(this._daysChart, this._tagsChart, this._colorsChart);
   }
 
-  show() {
+  show(cards) {
+    this._cards = cards;
+    const formatDates = cards.map((element) => moment(element.dueDate).format(`YYYY-MM-DD`)).sort();
+
+    flatpickr(this.getElement().querySelector(`.statistic__period-input`), {
+      mode: `range`,
+      altInput: true,
+      altFormat: `d M`,
+      dateFormat: `Y-m-d`,
+      defaultDate: [formatDates[0], formatDates[formatDates.length - 1]],
+      locale: {
+        rangeSeparator: ` - `
+      }
+    });
+
     this.getElement().classList.remove(`visually-hidden`);
 
     this._createDaysChart();
@@ -206,25 +206,30 @@ export class Statistic extends AbstractComponent {
   }
 
   _createDaysChart() {
-    const daysCtx = this.getElement().querySelector(`.statistic__days`);
+    const ctx = this.getElement().querySelector(`.statistic__days`);
+    const sortDates = this._cards.map((element) => moment(element.dueDate).format(`DD MMM`)).sort();
 
-    this._daysChart = this._lineChart(daysCtx, this._uniqueItems(this._sortDates), this._numberOfItems(this._sortDates));
+    this._daysChart = this._lineChart(ctx, this._uniqueItems(sortDates), this._numberOfItems(sortDates));
   }
 
   _createTagsChart() {
     const ctx = this.getElement().querySelector(`.statistic__tags`);
-    const labels = this._uniqueItems(this._allTags).map((element) => `#${element}`);
-    const data = this._numberOfItems(this._allTags);
-    const backgroundColor = this._uniqueItems(this._allTags).map(() => `rgba(${Math.round(Math.random() * 255)}, ${Math.round(Math.random() * 255)}, ${Math.round(Math.random() * 255)})`);
+    const allTags = this._cardsInTag(this._cards);
+
+    const labels = this._uniqueItems(allTags).map((element) => `#${element}`);
+    const data = this._numberOfItems(allTags);
+    const backgroundColor = this._uniqueItems(allTags).map(() => `rgba(${Math.round(Math.random() * 255)}, ${Math.round(Math.random() * 255)}, ${Math.round(Math.random() * 255)})`);
 
     this._tagsChart = this._pieChart(ctx, labels, data, backgroundColor);
   }
 
   _createColorsChart() {
     const ctx = this.getElement().querySelector(`.statistic__colors`);
-    const labels = this._uniqueItems(this._sortColors);
-    const data = this._numberOfItems(this._sortColors);
-    const backgroundColor = this._uniqueItems(this._sortColors).map((element) => {
+    const sortColors = this._cards.map((element) => element.color).sort();
+
+    const labels = this._uniqueItems(sortColors);
+    const data = this._numberOfItems(sortColors);
+    const backgroundColor = this._uniqueItems(sortColors).map((element) => {
       switch (element) {
         case `black`:
           return `#000000`;
