@@ -25,8 +25,8 @@ renderElement(mainElement, search.getElement());
 renderElement(mainElement, filter.getElement());
 renderElement(mainElement, statistic.getElement());
 
-const boardController = new BoardController(mainElement, dataChangeHandler, cardsMock, filters);
-boardController.init();
+const boardController = new BoardController(mainElement, dataChangeHandler);
+boardController.show(cardsMock);
 
 menu.getElement().addEventListener(`change`, (evt) => {
   evt.preventDefault();
@@ -38,7 +38,7 @@ menu.getElement().addEventListener(`change`, (evt) => {
   switch (evt.target.id) {
     case MenuId.TASK:
       statistic.hide();
-      boardController.show();
+      boardController.show(cardsMock);
       break;
     case MenuId.STATISTIC:
       statistic.show(cardsMock);
