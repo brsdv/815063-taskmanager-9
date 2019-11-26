@@ -17,10 +17,10 @@ export class CardController {
     this._updateBooleanData = this._getFormData();
     this._currentCard = this._card;
     this._mode = mode;
-    this.init(mode);
+    this._init(mode);
   }
 
-  init(mode) {
+  _init(mode) {
     const cardElement = this._card.getElement();
     const cardEditElement = this._cardEdit.getElement();
 
